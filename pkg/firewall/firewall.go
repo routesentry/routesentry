@@ -41,6 +41,7 @@ func New(opts ...Option) (*Firewall, error) {
 		OutputChainName:  outputChainName,
 		ForwardChainName: forwardChainName,
 		TunIfaceName:     tunIface,
+		FlushRulesOnInit: true,
 	}
 
 	for _, opt := range opts {
@@ -51,8 +52,10 @@ func New(opts ...Option) (*Firewall, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nftables connection: %w", err)
 	}
-	// remove all existing rules
-	conn.FlushRuleset()
+	if cfg.FlushRulesOnInit {
+		// remove all existing rules
+		conn.FlushRuleset()
+	}
 
 	// create our rules
 	table := &nftables.Table{

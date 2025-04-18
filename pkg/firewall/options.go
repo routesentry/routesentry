@@ -11,6 +11,7 @@ type config struct {
 	OutputChainName  string
 	ForwardChainName string
 	TunIfaceName     string
+	FlushRulesOnInit bool
 }
 
 func WithTableName(name string) Option {
@@ -46,5 +47,11 @@ func WithForwardChainName(name string) Option {
 func WithTunIfaceName(name string) Option {
 	return func(c *config) {
 		c.TunIfaceName = name
+	}
+}
+
+func WithFlushRulesOnInit(f bool) Option {
+	return func(c *config) {
+		c.FlushRulesOnInit = f
 	}
 }
