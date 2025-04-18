@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	nftableName      = "routesentry"
-	inputChainName   = nftableName + "_input"
-	outputChainName  = nftableName + "_output"
-	forwardChainName = nftableName + "_forward"
-	tunIface         = "wg0"
+	nfFilterTableName = "routesentry_filter"
+	inputChainName    = nfFilterTableName + "_input"
+	outputChainName   = nfFilterTableName + "_output"
+	forwardChainName  = nfFilterTableName + "_forward"
+	tunIface          = "wg0"
 )
 
 type ChainType int
@@ -25,7 +25,7 @@ const (
 
 type Firewall struct {
 	conn         *nftables.Conn
-	table        *nftables.Table
+	filterTable  *nftables.Table
 	inChain      *nftables.Chain
 	outChain     *nftables.Chain
 	forwardChain *nftables.Chain
@@ -35,7 +35,7 @@ type Firewall struct {
 func New(opts ...Option) (*Firewall, error) {
 
 	cfg := &config{
-		TableName:        nftableName,
+		TableName:        nfFilterTableName,
 		TableFamily:      nftables.TableFamilyINet,
 		InputChainName:   inputChainName,
 		OutputChainName:  outputChainName,
@@ -90,7 +90,7 @@ func New(opts ...Option) (*Firewall, error) {
 
 	return &Firewall{
 		conn:         conn,
-		table:        table,
+		filterTable:  table,
 		inChain:      inChain,
 		outChain:     outChain,
 		forwardChain: forwardChain,
@@ -109,11 +109,11 @@ func (f *Firewall) Flush() error {
 func (f *Firewall) NewRuleBuilder(c ChainType) *RuleBuilder {
 	switch c {
 	case Input:
-		return newRuleBuilder(f.table, f.inChain)
+		return newRuleBuilder(f.filterTable, f.inChain)
 	case Output:
-		return newRuleBuilder(f.table, f.outChain)
+		return newRuleBuilder(f.filterTable, f.outChain)
 	case Forward:
-		return newRuleBuilder(f.table, f.forwardChain)
+		return newRuleBuilder(f.filterTable, f.forwardChain)
 	default:
 		return nil
 	}
